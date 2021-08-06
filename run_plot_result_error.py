@@ -14,7 +14,7 @@ def main(): # pylint: disable=too-many-locals, too-many-statements
     """
     The main function.
     """
-    noise_percent = "0p01"
+    noise_percent = "0p005"
 
     #***********************************************************************************************
     # Load the results and place them in long form.
@@ -43,12 +43,12 @@ def main(): # pylint: disable=too-many-locals, too-many-statements
     #***********************************************************************************************
     sns.set_theme(style="whitegrid")
 
-    fontsize = 30
-    plt.rc("axes", labelsize=fontsize)
-    plt.rc("legend", title_fontsize=fontsize)
-    plt.rc("legend", fontsize=fontsize)
-    plt.rc("xtick", labelsize=fontsize)
-    plt.rc("ytick", labelsize=fontsize)
+    #fontsize = 30
+    #plt.rc("axes", labelsize=fontsize)
+    #plt.rc("legend", title_fontsize=fontsize)
+    #plt.rc("legend", fontsize=fontsize)
+    #plt.rc("xtick", labelsize=fontsize)
+    #plt.rc("ytick", labelsize=fontsize)
 
     #***********************************************************************************************
     # Plot the results.
