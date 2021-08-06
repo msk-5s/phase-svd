@@ -15,7 +15,7 @@ import numpy as np
 def make_data(noise_percent: float, rng: np.random.Generator) ->\
 Tuple[NDArray[(Any, Any), float], NDArray[(Any, Any), float]]:
     """
-    Make a window of load data.
+    Make the load data.
 
     Parameters
     ----------

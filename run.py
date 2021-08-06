@@ -18,7 +18,7 @@ def main(): # pylint: disable=too-many-locals, too-many-statements
     """
     The main function.
     """
-    # We want and randomness to be repeatable.
+    # We want the randomness to be repeatable.
     rng = np.random.default_rng(seed=1337)
 
     #***********************************************************************************************
