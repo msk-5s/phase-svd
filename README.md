@@ -1,8 +1,6 @@
 # **phase-svd**
 
-This repository contains the source code for recreating the research in "Denoising with Singular Value Decomposition for Phase Identification in Power Distribution Systems"[^1]. The dataset in this work can be recreated from scratch using the [phase-svd-opendss](https://github.com/msk-5s/phase-svd-opendss.git) repository.
-
-> NOTE: The dataset will be placed in a public repository soon, so that it doesn't have to be generated from scratch.
+This repository contains the source code for recreating the research in "Denoising with Singular Value Decomposition for Phase Identification in Power Distribution Systems"[^1]. The dataset can be downloaded from [Kaggle](https://www.kaggle.com/msk5sdata/phase-svd). Alternatively, the dataset in this work can be recreated from scratch using the [phase-svd-opendss](https://github.com/msk-5s/phase-svd-opendss.git) repository.
 
 ## Requirements
     - Python 3.8+ (64-bit)
@@ -10,7 +8,7 @@ This repository contains the source code for recreating the research in "Denoisi
 
 ## Folders
 `data/`
-: The voltage magnitude dataset, default ckt5 load profiles, synthetic load profiles, and metadata should be placed in this folder.
+: The voltage magnitude dataset, default ckt5 load profiles, synthetic load profiles, and metadata should be placed in this folder (download it from [Kaggle](https://www.kaggle.com/msk5sdata/phase-svd)).
 
 `results/`
 : This folder contains the phase identification results for different window widths and noise percents. These are the results reported in the paper.
