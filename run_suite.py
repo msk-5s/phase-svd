@@ -42,7 +42,7 @@ def _run_identification(
     Returns
     -------
     dict, ['noise_accuracy', 'denoise_accuracy', 'noise_error', 'denoise_error',
-    'singular_value_count']
+    'singular_value_count', 'random_seed']
         The results of the case run.
     """
     (denoise, singular_value_count) = transform.denoise_svd(noise=noise)
