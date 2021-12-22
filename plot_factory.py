@@ -52,7 +52,7 @@ def make_correlation_heatmap(load: NDArray[(Any, Any), float], labels: NDArray[(
 
     Parameters
     ----------
-    load : numpy.ndarray, (n_load, n_timestep)
+    load : numpy.ndarray, (n_timestep, n_load)
         The load data to plot.
     labels : numpy.ndarray, (n_load,)
         The phase labels of the loads.
