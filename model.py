@@ -8,36 +8,57 @@ from typing import Any
 from nptyping import NDArray
 
 import numpy as np
+import sklearn.metrics
 import sklearn_extra.cluster
 
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
 def predict(
-    labels: NDArray[(Any,), int], load: NDArray[(Any, Any), float], random_seed: int
+    data: NDArray[(Any, Any), float], labels: NDArray[(Any,), int], random_state: int,
+    run_count: int
 ) -> NDArray[(Any, Any), int]:
     """
     Predict the phase labels using clustering.
 
     Parameters
     ----------
-    labels : numpy.ndarray of int, (n_load,)
-        The true phase labels.
-    load : numpy.ndarray of int, (n_timestep, n_load)
+    data : numpy.ndarray of int, (n_timestep, n_load)
         The load voltage magnitude data.
-    random_seed : int
-        The random seed to use.
+    labels : numpy.ndarray of int, (n_load,)
+        The phase labels.
+    random_state : int
+        The random state to use.
+    run_count : int
+        The number of times to run the clustering.
 
     Returns
     -------
     numpy.ndarray of int, (n_load,)
         The predicted phase labels.
     """
-    dist = np.sqrt((1 - np.corrcoef(load, rowvar=False)) / 2)
+    rng = np.random.default_rng(seed=random_state)
 
-    clusters = sklearn_extra.cluster.KMedoids(
-        n_clusters=3, method="alternate", metric="precomputed", init="k-medoids++",
-        random_state=random_seed
-    ).fit_predict(dist)
+    dist = np.sqrt((1 - np.corrcoef(data, rowvar=False)) / 2)
+
+    clusters_list = []
+    scores = np.zeros(shape=run_count)
+
+    for i in range(run_count):
+        random_state_cluster = rng.integers(np.iinfo(np.int32).max)
+
+        model = sklearn_extra.cluster.KMedoids(
+            n_clusters=3, method="alternate", metric="precomputed", init="k-medoids++",
+            random_state=random_state_cluster
+        ).fit(dist)
+
+        clusters = model.predict(dist)
+
+        clusters_list.append(clusters)
+        scores[i] = sklearn.metrics.calinski_harabasz_score(X=data.T, labels=clusters)
+
+    # Use the clustering with the highest CH score.
+    index = np.argmax(scores)
+    clusters = clusters_list[index]
 
     predictions = _predict_majority_vote(clusters=clusters, labels=labels)
 
@@ -45,8 +66,9 @@ def predict(
 
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
-def _predict_majority_vote(clusters: NDArray[(Any,), int], labels: NDArray[(Any,), int])\
--> NDArray[(Any,), int]:
+def _predict_majority_vote(
+    clusters: NDArray[(Any,), int], labels: NDArray[(Any,), int]
+)-> NDArray[(Any,), int]:
     """
     Do label correction using predicted clusters and labels with a majority vote rule.
 

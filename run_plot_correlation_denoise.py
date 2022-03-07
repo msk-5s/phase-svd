@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-This script plots correlation matrices for the noiseless, noisy, and denoised data.
+This script plots correlation matrices for the noisy and denoised data.
 """
 
 import matplotlib.pyplot as plt
@@ -23,74 +23,92 @@ def main(): # pylint: disable=too-many-locals
     #***********************************************************************************************
     # Load the data.
     #***********************************************************************************************
-    (load, noise) = data_factory.make_data(noise_percent=0.005, rng=rng)
-    labels = data_factory.make_labels()
-
     start = 0
-    width = 96 * 7
+    timesteps_per_day = 96
+    days = 7
+    width = days * timesteps_per_day
 
-    load = load[start:(start + width), :]
-    noise = noise[start:(start + width), :]
+    data = data_factory.make_data()[start:(start + width), :]
+    load_classes = data_factory.make_load_classes()
+
+    random_state = rng.integers(np.iinfo(np.int32).max)
+    labels = data_factory.make_labels(percent_error=0.4, random_state=random_state)
 
     #***********************************************************************************************
-    # Denoise data and calculate Frobenius errors.
+    # Create noisy data.
     #***********************************************************************************************
-    (u, s, vt) = np.linalg.svd(noise, full_matrices=False) # pylint: disable=invalid-name
+    data_n = data_factory.make_data_gauss_noise(data=data, percent=0.005, random_state=random_state)
 
-    # Calculate the Singular Value Hard Threshold (SVHT) as presented in "The Optimal Hard
-    # Threshold for Singular Values is 4 / sqrt(3)" by Gavish, et al.
-    beta = noise.shape[0] / noise.shape[1]
-    omega = 0.56 * beta**3 - 0.95 * beta**2 + 1.82 * beta + 1.43
-    threshold = omega * np.median(s)
-    value_count = len(s[s >= threshold])
+    #data_n = data_factory.make_data_laplace_noise(
+    #    data=data, percent=0.005, random_state=random_state
+    #)
 
-    denoise = u[:, :value_count] @ np.diag(s[:value_count]) @ vt[:value_count, :]
-
-    noise_error = np.sqrt(np.sum((noise - load)**2))
-    denoise_error = np.sqrt(np.sum((denoise - load)**2))
-
-    print("-"*50)
-    print(f"Singular Value Count: {value_count}")
-    print(f"Noise Frobenius Error: {noise_error}")
-    print(f"Denoise Frobenius Error: {denoise_error}")
-    print("-"*50)
+    #***********************************************************************************************
+    # Denoise with SVD.
+    #***********************************************************************************************
+    (data_nd, values, value_count) = transform.denoise_svd(data=data_n)
 
     #***********************************************************************************************
     # Make the time series' stationary.
+    # NOTE: SVD for denoising doesn't care if the data is stationary or not.
     #***********************************************************************************************
-    dd_load = transform.difference(data=load, order=2)
-    dd_noise = transform.difference(data=noise, order=2)
-    dd_denoise = transform.difference(data=denoise, order=2)
+    class_cutoffs = {"Residential": 0.06, "Commercial_SM": 0.07, "Commercial_MD": 0.04}
+
+    data_s = transform.filter_butterworth_by_class(
+        data=data, class_cutoffs=class_cutoffs, load_classes=load_classes, order=10
+    )
+
+    data_ns = transform.filter_butterworth_by_class(
+        data=data_n, class_cutoffs=class_cutoffs, load_classes=load_classes, order=10
+    )
+
+    data_nds = transform.filter_butterworth_by_class(
+        data=data_nd, class_cutoffs=class_cutoffs, load_classes=load_classes, order=10
+    )
 
     #***********************************************************************************************
-    # Set font sizes.
+    # Calculate Frobenius error.
     #***********************************************************************************************
-    #fontsize = 60
+    error_ns = np.sqrt(np.sum((data_s - data_ns)**2))
+    error_nds = np.sqrt(np.sum((data_s - data_nds)**2))
+
+    print('-'*50)
+    print(f"Frobenius Error (Noisy): {error_ns}")
+    print(f"Frobenius Error (Denoised): {error_nds}")
+    print('-'*50)
+
+    #***********************************************************************************************
+    # Set AeStHeTiCs.
+    #***********************************************************************************************
+    #fontsize = 40
     #plt.rc("axes", labelsize=fontsize)
     #plt.rc("axes", titlesize=fontsize)
     #plt.rc("figure", titlesize=fontsize)
     #plt.rc("xtick", labelsize=fontsize)
     #plt.rc("ytick", labelsize=fontsize)
 
+    font = {"family": "monospace", "monospace": ["Times New Roman"]}
+    plt.rc("font", **font)
+
     #***********************************************************************************************
     # Plot correlation matrices.
     #***********************************************************************************************
-    (fig_dd_load, _) = plot_factory.make_correlation_heatmap(load=dd_load, labels=labels)
-    (fig_dd_noise, _) = plot_factory.make_correlation_heatmap(load=dd_noise, labels=labels)
-    (fig_dd_denoise, _) = plot_factory.make_correlation_heatmap(load=dd_denoise, labels=labels)
+    (fig_ns, _) = plot_factory.make_correlation_heatmap(data=data_ns, labels=labels["true"])
+    (fig_nds, _) = plot_factory.make_correlation_heatmap(data=data_nds, labels=labels["true"])
 
-    fig_dd_load.suptitle("Load")
-    fig_dd_noise.suptitle("Noise")
-    fig_dd_denoise.suptitle("Denoise")
+    fig_ns.suptitle("Noisy")
+    fig_nds.suptitle("Denoised")
 
     #***********************************************************************************************
     # Plot log of singular values.
     #***********************************************************************************************
-    (fig_s, _) = plot_factory.make_value_plot(
-        singular_values=s[:30], value_count=value_count, size=400
+    (fig_s, axs_s) = plot_factory.make_value_plot(
+        values=values[:20], value_count=value_count, size=400
     )
 
     fig_s.suptitle("Singular Values")
+
+    axs_s.set_yticks(np.arange(start=3, stop=13.5, step=1))
 
     plt.show()
 

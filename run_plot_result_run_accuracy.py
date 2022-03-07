@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-This script plots the Frobenius error results.
+This script plots the accuracy results for different number of runs.
 """
 
 import matplotlib.pyplot as plt
@@ -14,37 +14,43 @@ def main(): # pylint: disable=too-many-locals, too-many-statements
     """
     The main function.
     """
-    case_name = "case_svd_svht"
-    noise_name = "gauss"
+    case_name = "case_iqr_svd_svht"
+    noise_name = "cauchy"
     noise_percent = "0p005"
-    run_count = 10
+    run_count_left = 1
+    run_count_right = 10
 
     #***********************************************************************************************
     # Load the results and place them in long form.
     #***********************************************************************************************
-    results = pd.DataFrame(columns=["error", "day", "dataset"])
+    results = pd.DataFrame(columns=["accuracy", "day", "dataset"])
 
     for day in range(1, 8):
-        temp = pd.read_csv(
-            f"results/result-{case_name}-{day}-day-{noise_percent}-noise-{run_count}-run.csv",
+        temp_left = pd.read_csv(
+            f"results/result-{case_name}-{day}-day-{noise_percent}-noise-{run_count_left}-run.csv",
             index_col=0
         )
 
-        frame_n = pd.DataFrame(data={
-            "error": temp[f"error_noise_{noise_name}"],
+        temp_right = pd.read_csv(
+            f"results/result-{case_name}-{day}-day-{noise_percent}-noise-{run_count_right}-run.csv",
+            index_col=0
+        )
+
+        frame_left = pd.DataFrame(data={
+            "accuracy": temp_left[f"accuracy_{noise_name}"],
             "day": day,
-            "dataset": "noisy"
+            "dataset": f"{run_count_left}-run"
         })
 
-        frame_nd = pd.DataFrame(data={
-            "error": temp[f"error_denoise_{noise_name}"],
+        frame_right = pd.DataFrame(data={
+            "accuracy": temp_right[f"accuracy_{noise_name}"],
             "day": day,
-            "dataset": "denoised"
+            "dataset": f"{run_count_right}-run"
         })
 
-        results = pd.concat([results, frame_n, frame_nd], axis=0)
+        results = pd.concat([results, frame_left, frame_right], axis=0)
 
-    results = results.astype({"error": float, "day": int, "dataset": str})
+    results = results.astype({"accuracy": float, "day": int, "dataset": str})
 
     #***********************************************************************************************
     # Set AeStHeTiCs.
@@ -72,19 +78,19 @@ def main(): # pylint: disable=too-many-locals, too-many-statements
     fig.tight_layout()
 
     sns.violinplot(
-        x="day", y="error", hue="dataset", data=results,
+        x="day", y="accuracy", hue="dataset", data=results,
         color=".8", dodge=True, inner=None, ax=axs
     )
 
     sns.stripplot(
-        x="day", y="error", hue="dataset", data=results,
+        x="day", y="accuracy", hue="dataset", data=results,
         alpha=0.3, ax=axs, dodge=True, linewidth=1, size=5
     )
 
-    axs.set_ylabel("Frobenius Error")
+    axs.set_ylabel("Accuracy")
     axs.set_xlabel("Window Width (Days)")
 
-    #axs.set_yticks([round(0.1 * i, 2) for i in range(3, 11)])
+    axs.set_yticks([round(0.1 * i, 2) for i in range(3, 11)])
 
     plt.show()
 
