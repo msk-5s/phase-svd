@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: BSD-3-Clause
 
 """
 This script plots the correlation matrix heatmap for the data before and after filtering.
