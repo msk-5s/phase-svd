@@ -8,7 +8,7 @@ This repository contains the source code for recreating the research in "Denoisi
 
 ## Folders
 `data/`
-: The voltage magnitude dataset, default ckt5 load profiles, synthetic load profiles, and metadata should be placed in this folder (download it from [Kaggle](https://www.kaggle.com/msk5sdata/phase-svd)).
+: The voltage magnitude dataset, default ckt5 load profiles, synthetic load profiles, and metadata should be placed in this folder (download it from [Kaggle](https://www.kaggle.com/datasets/msk5sdata/phase-svd/versions/1) (version 1)).
 
 `results/`
 : This folder contains the phase identification results for different window widths, noise percents, and run counts. These are the results reported in the paper.
