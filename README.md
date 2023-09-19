@@ -1,6 +1,6 @@
 # **phase-svd**
 
-This repository contains the source code for recreating the research in "Denoising with Singular Value Decomposition for Phase Identification in Power Distribution Systems". The dataset can be downloaded from [Kaggle](https://www.kaggle.com/msk5sdata/phase-svd). Alternatively, the dataset in this work can be recreated from scratch using the [phase-svd-opendss](https://github.com/msk-5s/phase-svd-opendss.git) repository.
+This repository contains the source code for recreating the research in "Denoising with Singular Value Decomposition for Phase Identification in Power Distribution Systems". The dataset can be downloaded from [Kaggle](https://www.kaggle.com/datasets/msk5sdata/phase-svd/versions/1). Alternatively, the dataset in this work can be recreated from scratch using the [phase-svd-opendss](https://github.com/msk-5s/phase-svd-opendss.git) repository.
 
 ## Requirements
     - Python 3.8+ (64-bit)
